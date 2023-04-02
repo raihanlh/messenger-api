@@ -1,0 +1,256 @@
+definitions:
+  model.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+    type: object
+  payload.CreateRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  payload.CreateResponse:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  payload.DeleteResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  payload.GetAllResponse:
+    properties:
+      message:
+        type: string
+      page:
+        type: integer
+      paginatedData:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+      perPage:
+        type: integer
+      sort:
+        type: string
+      totalItems:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+  payload.GetByIdResponse:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  payload.UpdateRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  payload.UpdateResponse:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+info:
+  contact:
+    email: raihan.luthfi.h@gmail.com
+    name: Raihan Luthfi
+    url: https://github.com/raihanlh
+  description: Messenger API server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Messenger API
+  version: "1.0"
+paths:
+  /api/v1/user/{id}:
+    get:
+      consumes:
+      - application/json
+      description: get user by id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.GetByIdResponse'
+                status:
+                  type: string
+              type: object
+      summary: Get User By Id
+      tags:
+      - User
+  /api/v1/user/create:
+    post:
+      consumes:
+      - application/json
+      description: create user from request body
+      parameters:
+      - description: Create User
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.CreateResponse'
+                status:
+                  type: string
+              type: object
+      summary: Create New User
+      tags:
+      - User
+  /api/v1/user/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete user from request body
+      parameters:
+      - description: Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.DeleteResponse'
+                status:
+                  type: string
+              type: object
+      summary: Delete User
+      tags:
+      - User
+  /api/v1/user/update/{id}:
+    patch:
+      consumes:
+      - application/json
+      description: update user from request body
+      parameters:
+      - description: Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update User
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.UpdateResponse'
+                status:
+                  type: string
+              type: object
+      summary: Update User
+      tags:
+      - User
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      description: get all users
+      parameters:
+      - description: Search by user name
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.GetAllResponse'
+                status:
+                  type: string
+              type: object
+      summary: Get All User
+      tags:
+      - User
+  /health:
+    get:
+      consumes:
+      - '*/*'
+      description: get the status of server.
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Show the status of server.
+      tags:
+      - health
+swagger: "2.0"
