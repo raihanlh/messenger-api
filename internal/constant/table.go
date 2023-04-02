@@ -1,5 +1,6 @@
 package constant
 
 const (
-	UserTable string = "users"
+	UserTable    string = "users"
+	MessageTable string = "messages"
 )
