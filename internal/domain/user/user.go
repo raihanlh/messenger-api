@@ -14,6 +14,7 @@ type Repository interface {
 	Update(ctx context.Context, user *model.User) (*model.User, error)
 	Delete(ctx context.Context, id string) error
 	GetById(ctx context.Context, id string) (*model.User, error)
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
 	GetAll(ctx context.Context, pgn *pagination.Pagination, req *payload.GetAllRequest) ([]*model.User, error)
 }
 
@@ -23,6 +24,8 @@ type Usecase interface {
 	Delete(ctx context.Context, req *payload.DeleteRequest) (*payload.DeleteResponse, error)
 	GetById(ctx context.Context, req *payload.GetByIdRequest) (*payload.GetByIdResponse, error)
 	GetAll(ctx context.Context, req *payload.GetAllRequest) (*payload.GetAllResponse, error)
+	GetByToken(ctx context.Context, req *payload.GetByTokenRequest) (*payload.GetByTokenResponse, error)
+	Login(ctx context.Context, req *payload.LoginRequest) (*payload.LoginResponse, error)
 }
 
 type Handler interface {
@@ -31,4 +34,6 @@ type Handler interface {
 	Delete(ctx echo.Context) error
 	GetById(ctx echo.Context) error
 	GetAll(ctx echo.Context) error
+	GetByToken(ctx echo.Context) error
+	Login(ctx echo.Context) error
 }

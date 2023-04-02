@@ -11,6 +11,7 @@ type middlewares struct {
 
 type Middlewares interface {
 	AuthToken(next echo.HandlerFunc) echo.HandlerFunc
+	Authenticate(next echo.HandlerFunc) echo.HandlerFunc
 }
 
 func New(e *echo.Echo) Middlewares {

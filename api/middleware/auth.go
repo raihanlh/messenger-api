@@ -17,3 +17,15 @@ func (m *middlewares) AuthToken(next echo.HandlerFunc) echo.HandlerFunc {
 		return c.JSON(http.StatusInternalServerError, err.HttpResponseError())
 	}
 }
+
+func (m *middlewares) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		token, err := c.Request().Cookie("token")
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		c.Set("token", token.Value)
+
+		return next(c)
+	}
+}

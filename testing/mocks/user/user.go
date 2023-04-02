@@ -82,6 +82,21 @@ func (mr *MockRepositoryMockRecorder) GetAll(ctx, pgn, req interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepository)(nil).GetAll), ctx, pgn, req)
 }
 
+// GetByEmail mocks base method.
+func (m *MockRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByEmail", ctx, email)
+	ret0, _ := ret[0].(*model.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByEmail indicates an expected call of GetByEmail.
+func (mr *MockRepositoryMockRecorder) GetByEmail(ctx, email interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByEmail", reflect.TypeOf((*MockRepository)(nil).GetByEmail), ctx, email)
+}
+
 // GetById mocks base method.
 func (m *MockRepository) GetById(ctx context.Context, id string) (*model.User, error) {
 	m.ctrl.T.Helper()
@@ -195,6 +210,36 @@ func (mr *MockUsecaseMockRecorder) GetById(ctx, req interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockUsecase)(nil).GetById), ctx, req)
 }
 
+// GetByToken mocks base method.
+func (m *MockUsecase) GetByToken(ctx context.Context, req *payload.GetByTokenRequest) (*payload.GetByTokenResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByToken", ctx, req)
+	ret0, _ := ret[0].(*payload.GetByTokenResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByToken indicates an expected call of GetByToken.
+func (mr *MockUsecaseMockRecorder) GetByToken(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByToken", reflect.TypeOf((*MockUsecase)(nil).GetByToken), ctx, req)
+}
+
+// Login mocks base method.
+func (m *MockUsecase) Login(ctx context.Context, req *payload.LoginRequest) (*payload.LoginResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Login", ctx, req)
+	ret0, _ := ret[0].(*payload.LoginResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Login indicates an expected call of Login.
+func (mr *MockUsecaseMockRecorder) Login(ctx, req interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockUsecase)(nil).Login), ctx, req)
+}
+
 // Update mocks base method.
 func (m *MockUsecase) Update(ctx context.Context, req *payload.UpdateRequest) (*payload.UpdateResponse, error) {
 	m.ctrl.T.Helper()
@@ -287,6 +332,20 @@ func (m *MockHandler) GetById(ctx echo.Context) error {
 func (mr *MockHandlerMockRecorder) GetById(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetById", reflect.TypeOf((*MockHandler)(nil).GetById), ctx)
+}
+
+// GetByToken mocks base method.
+func (m *MockHandler) GetByToken(ctx echo.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByToken", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetByToken indicates an expected call of GetByToken.
+func (mr *MockHandlerMockRecorder) GetByToken(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByToken", reflect.TypeOf((*MockHandler)(nil).GetByToken), ctx)
 }
 
 // Update mocks base method.

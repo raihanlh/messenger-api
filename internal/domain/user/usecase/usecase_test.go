@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"gitlab.com/raihanlh/messenger-api/pkg/pagination"
+	"gitlab.com/raihanlh/messenger-api/testing/helper"
 	mock_user "gitlab.com/raihanlh/messenger-api/testing/mocks/user"
 
 	"github.com/golang/mock/gomock"
@@ -26,6 +27,9 @@ func Test_UserUsecase_Create(t *testing.T) {
 		Email:    "test@example.id",
 		Password: "password",
 	}
+	// hashedPassword, _ := utils.HashPassword(testUser.Password)
+	// testUser.Password = string(hashedPassword)
+	// log.Println(testUser.Password)
 
 	type args struct {
 		req *payload.CreateRequest
@@ -59,11 +63,16 @@ func Test_UserUsecase_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			userRepoMock := mock_user.NewMockRepository(ctrl)
 			ctx := context.TODO()
-			userRepoMock.EXPECT().Create(ctx, &model.User{
+			// userRepoMock.EXPECT().Create(ctx, &model.User{
+			// 	Name:     tt.args.req.Name,
+			// 	Email:    tt.args.req.Email,
+			// 	Password: tt.args.req.Password,
+			// }).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
+			userRepoMock.EXPECT().Create(ctx, helper.MatchCreateUser(model.User{
 				Name:     tt.args.req.Name,
 				Email:    tt.args.req.Email,
 				Password: tt.args.req.Password,
-			}).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
+			})).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
 
 			userUsecase := usecase.New(&dependency.Repositories{
 				User: userRepoMock,

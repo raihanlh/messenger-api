@@ -22,5 +22,6 @@ func MapRoutes(e *echo.Echo, h *dependency.Handlers, mw middleware.Middlewares) 
 	user.DELETE("/delete/:id", h.User.Delete, mw.AuthToken)
 	user.GET("/:id", h.User.GetById)
 	user.GET("s", h.User.GetAll)
-
+	user.POST("/login", h.User.Login)
+	user.GET("", h.User.GetByToken, mw.Authenticate)
 }

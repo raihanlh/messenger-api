@@ -13,7 +13,12 @@ definitions:
       name:
         type: string
       password:
+        minLength: 8
         type: string
+    required:
+    - email
+    - name
+    - password
     type: object
   payload.CreateResponse:
     properties:
@@ -53,6 +58,32 @@ definitions:
       user:
         $ref: '#/definitions/model.User'
     type: object
+  payload.GetByTokenResponse:
+    properties:
+      message:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+    type: object
+  payload.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  payload.LoginResponse:
+    properties:
+      exp:
+        type: string
+      message:
+        type: string
+      token:
+        type: string
+    type: object
   payload.UpdateRequest:
     properties:
       email:
@@ -82,6 +113,28 @@ info:
   title: Messenger API
   version: "1.0"
 paths:
+  /api/v1/user:
+    get:
+      consumes:
+      - application/json
+      description: get user by token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.GetByTokenResponse'
+                status:
+                  type: string
+              type: object
+      summary: Get By Token
+      tags:
+      - User
   /api/v1/user/{id}:
     get:
       consumes:
@@ -170,6 +223,35 @@ paths:
                   type: string
               type: object
       summary: Delete User
+      tags:
+      - User
+  /api/v1/user/login:
+    post:
+      consumes:
+      - application/json
+      description: user login
+      parameters:
+      - description: Login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/payload.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.LoginResponse'
+                status:
+                  type: string
+              type: object
+      summary: Login
       tags:
       - User
   /api/v1/user/update/{id}:

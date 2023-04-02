@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"gitlab.com/raihanlh/messenger-api/internal/constant"
@@ -42,6 +43,13 @@ func (r UserRepository) Delete(ctx context.Context, id string) error {
 func (r UserRepository) GetById(ctx context.Context, id string) (*model.User, error) {
 	var user *model.User
 	result := r.DB.WithContext(ctx).Table(constant.UserTable).Where("id = ?", id).First(&user)
+	return user, result.Error
+}
+
+func (r UserRepository) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+	log.Println(email)
+	var user *model.User
+	result := r.DB.WithContext(ctx).Table(constant.UserTable).Where("email = ?", email).First(&user)
 	return user, result.Error
 }
 
