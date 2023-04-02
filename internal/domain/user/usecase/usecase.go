@@ -152,12 +152,14 @@ func (u UserUsecase) GetByToken(ctx context.Context, req *payload.GetByTokenRequ
 
 func (u UserUsecase) Login(ctx context.Context, req *payload.LoginRequest) (*payload.LoginResponse, error) {
 	log := logger.GetLogger(ctx)
+	log.Info(fmt.Sprintf("%+v", req))
 
 	user, err := u.repositories.User.GetByEmail(ctx, req.Email)
 	if err != nil {
 		log.Error("Failed to log in: ", zap.Error(err))
 		return nil, err
 	}
+	log.Info(fmt.Sprintf("%+v", user))
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
@@ -167,6 +169,10 @@ func (u UserUsecase) Login(ctx context.Context, req *payload.LoginRequest) (*pay
 
 	exp := time.Now().Add(time.Hour * 72)
 	token, err := utils.GenerateToken(req.Email, user.ID, exp)
+	if err != nil {
+		log.Error("Failed to generate token: ", zap.Error(err))
+		return nil, err
+	}
 	return &payload.LoginResponse{
 		Token:   token,
 		Message: "Login success",

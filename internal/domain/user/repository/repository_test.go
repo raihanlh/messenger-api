@@ -358,6 +358,85 @@ func Test_UserRepository_GetById(t *testing.T) {
 	}
 }
 
+func Test_UserRepository_GetByEmail(t *testing.T) {
+	db, mock := Setup()
+
+	query := `SELECT * FROM "users" WHERE email = $1 AND "users"."deleted_at" IS NULL ORDER BY "users"."id" LIMIT 1`
+	column := []string{"id", "createdAt", "updatedAt", "deletedAt", "name", "email", "password"}
+
+	id := "6fd33930-d76e-401a-a3ba-7a03352812c2"
+	user := model.User{
+		Model: model.Model{
+			ID: id,
+		},
+		Name:     "Test User",
+		Email:    "test@example.com",
+		Password: "password",
+	}
+	rows := []driver.Value{id, nil, nil, nil, user.Name, user.Email, user.Password}
+
+	type fields struct {
+		DB *gorm.DB
+	}
+	type args struct {
+		ctx   context.Context
+		email string
+	}
+
+	tests := []struct {
+		name     string
+		fields   fields
+		args     args
+		rowsMock *sqlmock.Rows
+		want     *model.User
+		wantErr  assert.ErrorAssertionFunc
+	}{
+		{
+			name: "Get By Id User Success",
+			fields: fields{
+				DB: db,
+			},
+			args: args{
+				ctx:   context.TODO(),
+				email: user.Email,
+			},
+			rowsMock: sqlmock.NewRows(column).AddRow(rows...),
+			want:     &user,
+			wantErr:  assert.NoError,
+		},
+		{
+			name: "Get By Id User Failed",
+			fields: fields{
+				DB: db,
+			},
+			args: args{
+				ctx:   context.TODO(),
+				email: user.Email,
+			},
+			rowsMock: sqlmock.NewRows(column).AddRow(rows...).RowError(0, errors.New("test error")),
+			want:     &model.User{},
+			wantErr:  assert.Error,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mock.ExpectQuery(regexp.QuoteMeta(query)).
+				WithArgs(tt.args.email).
+				WillReturnRows(tt.rowsMock)
+
+			r := &repo.UserRepository{
+				DB: tt.fields.DB,
+			}
+
+			res, err := r.GetByEmail(tt.args.ctx, tt.args.email)
+
+			tt.wantErr(t, err)
+			assert.Equalf(t, tt.want, res, "Error on: GetByEmail(%v, %+v)", tt.args.ctx, tt.args.email)
+		})
+	}
+}
+
 func Test_UserRepository_GetAll(t *testing.T) {
 	db, mock := Setup()
 

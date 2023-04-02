@@ -4,17 +4,21 @@ import (
 	"context"
 	"fmt"
 	"testing"
+	"time"
 
+	"gitlab.com/raihanlh/messenger-api/config"
 	"gitlab.com/raihanlh/messenger-api/pkg/pagination"
 	"gitlab.com/raihanlh/messenger-api/testing/helper"
 	mock_user "gitlab.com/raihanlh/messenger-api/testing/mocks/user"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"gitlab.com/raihanlh/messenger-api/internal/app/dependency"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/user/payload"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/user/usecase"
 	"gitlab.com/raihanlh/messenger-api/internal/model"
+	"gitlab.com/raihanlh/messenger-api/internal/utils"
 )
 
 func Test_UserUsecase_Create(t *testing.T) {
@@ -27,9 +31,6 @@ func Test_UserUsecase_Create(t *testing.T) {
 		Email:    "test@example.id",
 		Password: "password",
 	}
-	// hashedPassword, _ := utils.HashPassword(testUser.Password)
-	// testUser.Password = string(hashedPassword)
-	// log.Println(testUser.Password)
 
 	type args struct {
 		req *payload.CreateRequest
@@ -63,11 +64,6 @@ func Test_UserUsecase_Create(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			userRepoMock := mock_user.NewMockRepository(ctrl)
 			ctx := context.TODO()
-			// userRepoMock.EXPECT().Create(ctx, &model.User{
-			// 	Name:     tt.args.req.Name,
-			// 	Email:    tt.args.req.Email,
-			// 	Password: tt.args.req.Password,
-			// }).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
 			userRepoMock.EXPECT().Create(ctx, helper.MatchCreateUser(model.User{
 				Name:     tt.args.req.Name,
 				Email:    tt.args.req.Email,
@@ -251,6 +247,136 @@ func Test_UserUsecase_GetById(t *testing.T) {
 			tt.wantErr(t, err)
 			if err == nil {
 				assert.Equalf(t, res, tt.want, "Get User By Id")
+			}
+		})
+	}
+}
+
+func Test_UserUsecase_GetByToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	testUser := &model.User{
+		Model:    model.Model{ID: "6fd33930-d76e-401a-a3ba-7a03352812c2"},
+		Name:     "Example User",
+		Email:    "test@example.id",
+		Password: "password",
+	}
+
+	tokenStr, _ := utils.GenerateToken(testUser.Email, testUser.ID, time.Now().Add(time.Hour*72))
+
+	type args struct {
+		req *payload.GetByTokenRequest
+	}
+	tests := []struct {
+		name            string
+		args            args
+		wantRepoResp    *model.User
+		wantErrRepoResp error
+		want            *payload.GetByTokenResponse
+		wantErr         assert.ErrorAssertionFunc
+	}{{
+		name: "Get User By Id Usecase Success",
+		args: args{
+			req: &payload.GetByTokenRequest{
+				Token: tokenStr,
+			},
+		},
+		wantRepoResp:    testUser,
+		wantErrRepoResp: nil,
+		want: &payload.GetByTokenResponse{
+			User:    testUser,
+			Message: "Successfully get user by token",
+		},
+		wantErr: assert.NoError,
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			userRepoMock := mock_user.NewMockRepository(ctrl)
+			ctx := context.TODO()
+			conf := config.New()
+
+			claims := &utils.Claims{}
+			jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+				return []byte(conf.Secret), nil
+			})
+			userRepoMock.EXPECT().GetByEmail(ctx, testUser.Email).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
+			userRepoMock.EXPECT().GetById(ctx, claims.UserID).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
+
+			userUsecase := usecase.New(&dependency.Repositories{
+				User: userRepoMock,
+			})
+
+			res, err := userUsecase.GetByToken(ctx, tt.args.req)
+			tt.wantErr(t, err)
+			if err == nil {
+				assert.Equalf(t, res, tt.want, "Get User By Id")
+			}
+		})
+	}
+}
+
+func Test_UserUsecase_Login(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	testUser := &model.User{
+		Model:    model.Model{ID: "6fd33930-d76e-401a-a3ba-7a03352812c2"},
+		Name:     "Example User",
+		Email:    "test@example.id",
+		Password: "password",
+	}
+
+	hashedPassword, _ := utils.HashPassword(testUser.Password)
+
+	type args struct {
+		req *payload.LoginRequest
+	}
+	tests := []struct {
+		name            string
+		args            args
+		wantRepoResp    *model.User
+		wantErrRepoResp error
+		want            *payload.LoginResponse
+		wantErr         assert.ErrorAssertionFunc
+	}{{
+		name: "Create User Usecase Success",
+		args: args{
+			req: &payload.LoginRequest{
+				Email:    testUser.Email,
+				Password: testUser.Password,
+			},
+		},
+		wantRepoResp: &model.User{
+			Model:    testUser.Model,
+			Name:     testUser.Name,
+			Email:    testUser.Email,
+			Password: string(hashedPassword),
+		},
+		wantErrRepoResp: nil,
+		want: &payload.LoginResponse{
+			Token:   "string",
+			Message: "Login success",
+			Exp:     time.Now().Add(time.Hour * 72),
+		},
+		wantErr: assert.NoError,
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			userRepoMock := mock_user.NewMockRepository(ctrl)
+			ctx := context.TODO()
+			userRepoMock.EXPECT().GetByEmail(ctx, tt.args.req.Email).Return(tt.wantRepoResp, tt.wantErrRepoResp).AnyTimes()
+
+			userUsecase := usecase.New(&dependency.Repositories{
+				User: userRepoMock,
+			})
+
+			res, err := userUsecase.Login(ctx, tt.args.req)
+			tt.wantErr(t, err)
+			if err == nil {
+				assert.Equalf(t, res.Message, tt.want.Message, "Login message")
 			}
 		})
 	}
