@@ -2,11 +2,12 @@ package middleware
 
 import (
 	"github.com/labstack/echo/v4"
+	"gitlab.com/raihanlh/messenger-api/internal/app/dependency"
 )
 
 type middlewares struct {
 	// Add your dependency here, example:
-	// usecase *dependency.Usecases
+	usecases *dependency.Usecases
 }
 
 type Middlewares interface {
@@ -14,6 +15,8 @@ type Middlewares interface {
 	Authenticate(next echo.HandlerFunc) echo.HandlerFunc
 }
 
-func New(e *echo.Echo) Middlewares {
-	return &middlewares{}
+func New(e *echo.Echo, u *dependency.Usecases) Middlewares {
+	return &middlewares{
+		usecases: u,
+	}
 }

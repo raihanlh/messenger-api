@@ -38,12 +38,11 @@ func Setup() (*gorm.DB, sqlmock.Sqlmock) {
 	return gormDB, mock
 }
 
-func Test_UserRepository_Create(t *testing.T) {
+func Test_UserRepository_Conversation(t *testing.T) {
 	db, mock := Setup()
 
-	query := `INSERT INTO "conversations" ("created_at","updated_at","deleted_at","id") VALUES ($1,$2,$3,$4) ON CONFLICT DO NOTHING RETURNING "id"`
+	query := `INSERT INTO "conversations" ("created_at","updated_at","deleted_at","sender_id", "receiver_id", "id") VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT DO NOTHING RETURNING "id"`
 	queryUser := `INSERT INTO "users" ("created_at","updated_at","deleted_at","name","email","password","id") VALUES ($1,$2,$3,$4,$5,$6,$7),($8,$9,$10,$11,$12,$13,$14) ON CONFLICT DO NOTHING RETURNING "id"`
-	queryParticipant := `INSERT INTO "user_participants" ("conversation_id","user_id") VALUES ($1,$2),($3,$4) ON CONFLICT DO NOTHING RETURNING "conversation_id","user_id`
 
 	id := "6fd33930-d76e-401a-a3ba-7a03352812c2"
 	column := []string{"id"}
@@ -70,7 +69,10 @@ func Test_UserRepository_Create(t *testing.T) {
 		Model: model.Model{
 			ID: id,
 		},
-		Users: []*model.User{sender, receiver},
+		SenderID: sender.ID,
+		ReceiverID: receiver.ID,
+		// Sender: sender,
+		// Receiver: receiver,
 	}
 	rows := []driver.Value{id}
 	rowUser1 := []driver.Value{sender.ID}
@@ -125,18 +127,14 @@ func Test_UserRepository_Create(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			users := conversation.Users
 
 			mock.ExpectBegin()
 			mock.ExpectQuery(regexp.QuoteMeta(query)).
 				WithArgs(AnyTime{}, AnyTime{}, nil, sqlmock.AnyArg()).
 				WillReturnRows(tt.rowsMock)
 			mock.ExpectQuery(regexp.QuoteMeta(queryUser)).
-				WithArgs(AnyTime{}, AnyTime{}, nil, users[0].Name, users[0].Email, users[0].Password, sqlmock.AnyArg(),
-					AnyTime{}, AnyTime{}, nil, users[1].Name, users[1].Email, users[1].Password, sqlmock.AnyArg()).
-				WillReturnRows(tt.rowsMock)
-			mock.ExpectQuery(regexp.QuoteMeta(queryParticipant)).
-				WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+				WithArgs(AnyTime{}, AnyTime{}, nil, sender.Name, sender.Email, sender.Password, sqlmock.AnyArg(),
+					AnyTime{}, AnyTime{}, nil, receiver.Name, receiver.Email, receiver.Password, sqlmock.AnyArg()).
 				WillReturnRows(tt.rowsMock)
 
 			mock.ExpectCommit()

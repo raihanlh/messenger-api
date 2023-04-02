@@ -5,6 +5,29 @@ definitions:
         type: string
       name:
         type: string
+      photo_url:
+        type: string
+    type: object
+  payload.CreateMessageRequest:
+    properties:
+      message:
+        type: string
+      user_id:
+        type: string
+    type: object
+  payload.CreateMessageResponse:
+    properties:
+      conversation:
+        $ref: '#/definitions/payload.GetConversationResponse'
+      id:
+        description: Message ID
+        type: string
+      message:
+        type: string
+      send_at:
+        type: string
+      sender:
+        $ref: '#/definitions/model.User'
     type: object
   payload.CreateRequest:
     properties:
@@ -65,6 +88,13 @@ definitions:
       user:
         $ref: '#/definitions/model.User'
     type: object
+  payload.GetConversationResponse:
+    properties:
+      id:
+        type: string
+      with_user:
+        $ref: '#/definitions/model.User'
+    type: object
   payload.LoginRequest:
     properties:
       email:
@@ -113,6 +143,35 @@ info:
   title: Messenger API
   version: "1.0"
 paths:
+  /api/v1/messages:
+    post:
+      consumes:
+      - application/json
+      description: create message from request body
+      parameters:
+      - description: Create User
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.CreateMessageResponse'
+                status:
+                  type: string
+              type: object
+      summary: Create New Message
+      tags:
+      - Message
   /api/v1/user:
     get:
       consumes:

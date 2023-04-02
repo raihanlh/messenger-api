@@ -46,7 +46,7 @@ func main() {
 
 	e.Validator = validator.New()
 
-	mw := apiMiddleware.New(e)
+	mw := apiMiddleware.New(e, usecases)
 	router.MapRoutes(e, handlers, mw)
 
 	log.Fatal(e.Start(":" + conf.Port))

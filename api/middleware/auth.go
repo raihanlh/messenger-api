@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	httpError "gitlab.com/raihanlh/messenger-api/api/payload/http-error"
+	"gitlab.com/raihanlh/messenger-api/internal/domain/user/payload"
 )
 
 func (m *middlewares) AuthToken(next echo.HandlerFunc) echo.HandlerFunc {
@@ -24,7 +25,15 @@ func (m *middlewares) Authenticate(next echo.HandlerFunc) echo.HandlerFunc {
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
+
+		res, err := m.usecases.User.GetByToken(c.Request().Context(), &payload.GetByTokenRequest{
+			Token: token.Value,
+		})
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
 		c.Set("token", token.Value)
+		c.Set("user", res.User)
 
 		return next(c)
 	}

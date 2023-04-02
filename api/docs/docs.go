@@ -24,6 +24,55 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/messages": {
+            "post": {
+                "description": "create message from request body",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "Create New Message",
+                "parameters": [
+                    {
+                        "description": "Create User",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payload.CreateMessageRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/payload.CreateMessageResponse"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/user": {
             "get": {
                 "description": "get user by token",
@@ -403,6 +452,41 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "photo_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "payload.CreateMessageRequest": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "payload.CreateMessageResponse": {
+            "type": "object",
+            "properties": {
+                "conversation": {
+                    "$ref": "#/definitions/payload.GetConversationResponse"
+                },
+                "id": {
+                    "description": "Message ID",
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "send_at": {
+                    "type": "string"
+                },
+                "sender": {
+                    "$ref": "#/definitions/model.User"
                 }
             }
         },
@@ -492,6 +576,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user": {
+                    "$ref": "#/definitions/model.User"
+                }
+            }
+        },
+        "payload.GetConversationResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "with_user": {
                     "$ref": "#/definitions/model.User"
                 }
             }

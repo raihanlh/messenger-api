@@ -3,19 +3,20 @@ package conversation
 import (
 	"context"
 
-	"github.com/labstack/echo/v4"
-	"gitlab.com/raihanlh/messenger-api/internal/domain/user/payload"
+	"gitlab.com/raihanlh/messenger-api/internal/domain/conversation/payload"
 	"gitlab.com/raihanlh/messenger-api/internal/model"
 )
 
 type Repository interface {
 	Create(ctx context.Context, conv *model.Conversation) (*model.Conversation, error)
+	GetAllByUserId(ctx context.Context, userId string) ([]*model.Conversation, error)
+	GetBySenderReceiverIds(ctx context.Context, senderId string, receiverId string) (*model.Conversation, error)
 }
 
 type Usecase interface {
-	Create(ctx context.Context, req *payload.CreateRequest) (*payload.CreateResponse, error)
+	Create(ctx context.Context, req *payload.CreateConversationRequest) (*payload.CreateConversationResponse, error)
 }
 
 type Handler interface {
-	Create(ctx echo.Context) error
+	// Create(ctx echo.Context) error
 }
