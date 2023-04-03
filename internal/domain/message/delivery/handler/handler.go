@@ -48,6 +48,11 @@ func (h MessageHandler) Create(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, errCustom)
 	}
 
+	// Check if message is empty
+	if body.Message == "" {
+		return ctx.JSON(http.StatusUnprocessableEntity, "message can't be empty")
+	}
+
 	// Pass body to usecase
 	data, err := h.usecases.Message.Create(ctx.Request().Context(), &body)
 	if err != nil {
@@ -91,6 +96,12 @@ func (h MessageHandler) GetByConversationId(ctx echo.Context) error {
 	body.UserID = user.ID
 	data, err := h.usecases.Message.GetAllByConversationId(ctx.Request().Context(), &body)
 	if err != nil {
+		if err.Error() == "unauthorized" {
+			return ctx.JSON(http.StatusForbidden, "forbidden")
+		}
+		if err.Error() == "not found" {
+			return ctx.JSON(http.StatusNotFound, "not found")
+		}
 		httpErr, ok := err.(*http_error.Error)
 		if !ok {
 			return ctx.JSON(http.StatusInternalServerError, http_error.InternalServerError(fmt.Sprintf("Failed to get user by id: %s", httpErr.Error())))

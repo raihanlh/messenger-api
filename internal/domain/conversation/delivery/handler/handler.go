@@ -52,10 +52,10 @@ func (h ConversationHandler) GetById(ctx echo.Context) error {
 	data, err := h.usecases.Conversation.GetById(ctx.Request().Context(), &body)
 	if err != nil {
 		if err.Error() == "not found" {
-			return ctx.JSON(http.StatusNotFound, http_error.RecordNotFound("conversation"))
+			return ctx.JSON(http.StatusNotFound, "not found")
 		}
 		if err.Error() == "unauthorized" {
-			return ctx.JSON(http.StatusNotFound, http_error.Unauthorized("unathorized"))
+			return ctx.JSON(http.StatusForbidden, "forbidden")
 		}
 		httpErr, ok := err.(*http_error.Error)
 		if !ok {

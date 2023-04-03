@@ -90,7 +90,7 @@ func (u MessageUsecase) GetAllByConversationId(ctx context.Context, req *payload
 	}
 	if convo.SenderID != req.UserID && convo.ReceiverID != req.UserID {
 		log.Error("Unauthorized: ", zap.Error(err))
-		return nil, errors.New("Unauthorized")
+		return nil, errors.New("unauthorized")
 	}
 
 	msgs, err := u.repositories.Message.GetAllByConversationId(ctx, req.ConversationID)
