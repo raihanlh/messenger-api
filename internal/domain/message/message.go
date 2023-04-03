@@ -11,6 +11,7 @@ import (
 type Repository interface {
 	Create(ctx context.Context, message *model.Message) (*model.Message, error)
 	GetAllByConversationId(ctx context.Context, conversationId string) ([]*model.Message, error)
+	GetUnreadCount(ctx context.Context, userId string, conversationId string) (int64, error)
 }
 
 type Usecase interface {

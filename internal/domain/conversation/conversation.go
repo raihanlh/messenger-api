@@ -18,9 +18,11 @@ type Repository interface {
 type Usecase interface {
 	Create(ctx context.Context, req *payload.CreateConversationRequest) (*payload.CreateConversationResponse, error)
 	GetById(ctx context.Context, req *payload.GetByIdConversationRequest) (*payload.GetByIdConversationResponse, error)
+	GetAllByUserId(ctx context.Context, req *payload.GetAllByUserIdConvRequest) (*payload.GetAllByUserIdConvResponse, error)
 }
 
 type Handler interface {
 	// Create(ctx echo.Context) error
 	GetById(ctx echo.Context) error
+	GetAllByUserId(ctx echo.Context) error
 }

@@ -66,6 +66,17 @@ definitions:
       message:
         type: string
     type: object
+  payload.GetAllByUserIdConv:
+    properties:
+      id:
+        type: string
+      last_message:
+        $ref: '#/definitions/model.Message'
+      unread_count:
+        type: integer
+      with_user:
+        $ref: '#/definitions/model.User'
+    type: object
   payload.GetAllResponse:
     properties:
       message:
@@ -161,6 +172,30 @@ info:
   title: Messenger API
   version: "1.0"
 paths:
+  /api/v1/conversations:
+    get:
+      consumes:
+      - application/json
+      description: get all conversation by user id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/payload.GetAllByUserIdConv'
+                  type: array
+                status:
+                  type: string
+              type: object
+      summary: Get All Conversation By User Id
+      tags:
+      - Conversation
   /api/v1/conversations/{convo_id}:
     get:
       consumes:

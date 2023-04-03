@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"gitlab.com/raihanlh/messenger-api/internal/constant"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/message"
 	"gitlab.com/raihanlh/messenger-api/internal/model"
 	"gorm.io/gorm"
@@ -30,4 +31,12 @@ func (r MessageRepository) GetAllByConversationId(ctx context.Context, conversat
 		return db.Select("id", "name")
 	}).Where("conversation_id = ?", conversationId).Select("messages.id", "messages.message_text", "messages.sent_at", "messages.sender_id").Find(&messages)
 	return messages, result.Error
+}
+
+func (r MessageRepository) GetUnreadCount(ctx context.Context, userId string, conversationId string) (int64, error) {
+	var unreadCount int64
+	result := r.DB.WithContext(ctx).Table(constant.MessageTable).
+		Where("conversation_id = ? AND sender_id != ?", conversationId, userId).Count(&unreadCount)
+
+	return unreadCount, result.Error
 }

@@ -3,11 +3,12 @@ package model
 import "gitlab.com/raihanlh/messenger-api/internal/constant"
 
 type Conversation struct {
-	Model      `swaggerignore:"true"`
-	SenderID   string `json:"sender_id"`
-	ReceiverID string `json:"receiver_id"`
-	Sender     *User  `gorm:"foreignKey:SenderID" json:"-"`
-	Receiver   *User  `gorm:"foreignKey:ReceiverID" json:"-"`
+	Model       `swaggerignore:"true"`
+	SenderID    string   `json:"sender_id"`
+	ReceiverID  string   `json:"receiver_id"`
+	Sender      *User    `gorm:"foreignKey:SenderID" json:"-"`
+	Receiver    *User    `gorm:"foreignKey:ReceiverID" json:"-"`
+	LastMessage *Message `json:"last_message,omitempty"`
 }
 
 // Table name for gorm

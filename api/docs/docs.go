@@ -24,6 +24,47 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/conversations": {
+            "get": {
+                "description": "get all conversation by user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Conversation"
+                ],
+                "summary": "Get All Conversation By User Id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/payload.GetAllByUserIdConv"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/conversations/{convo_id}": {
             "get": {
                 "description": "get conversation by id",
@@ -640,6 +681,23 @@ const docTemplate = `{
             "properties": {
                 "message": {
                     "type": "string"
+                }
+            }
+        },
+        "payload.GetAllByUserIdConv": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "last_message": {
+                    "$ref": "#/definitions/model.Message"
+                },
+                "unread_count": {
+                    "type": "integer"
+                },
+                "with_user": {
+                    "$ref": "#/definitions/model.User"
                 }
             }
         },

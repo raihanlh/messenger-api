@@ -2,7 +2,6 @@ package handler
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -41,7 +40,6 @@ func (h ConversationHandler) GetById(ctx echo.Context) error {
 		return ctx.JSON(errCustom.HTTPCode, errCustom.HttpResponseError())
 	}
 
-	log.Printf("%+v", body)
 	// Validate incoming data
 	if err := ctx.Validate(&body); err != nil {
 		errCustom := http_error.BadRequest(err)
@@ -52,6 +50,51 @@ func (h ConversationHandler) GetById(ctx echo.Context) error {
 	user := ctx.Get("user").(*model.User)
 	body.UserID = user.ID
 	data, err := h.usecases.Conversation.GetById(ctx.Request().Context(), &body)
+	if err != nil {
+		if err.Error() == "not found" {
+			return ctx.JSON(http.StatusNotFound, http_error.RecordNotFound("conversation"))
+		}
+		if err.Error() == "unauthorized" {
+			return ctx.JSON(http.StatusNotFound, http_error.Unauthorized("unathorized"))
+		}
+		httpErr, ok := err.(*http_error.Error)
+		if !ok {
+			return ctx.JSON(http.StatusInternalServerError, http_error.InternalServerError(fmt.Sprintf("Failed to get user by id: %s", httpErr.Error())))
+		}
+		return ctx.JSON(httpErr.HTTPCode, httpErr.HttpResponseError())
+	}
+
+	res := new(apiPayload.BaseResponse)
+	res.AddHTTPCode(http.StatusOK).AddStatus(apiPayload.StatusOK).AddData(data)
+	return ctx.JSON(res.HTTPCode, res)
+}
+
+// GetAllConversationByUserId godoc
+// @Summary Get All Conversation By User Id
+// @Description get all conversation by user id
+// @Tags Conversation
+// @Accept application/json
+// @Produce json
+// @Success 200 {object} object{status=string,data=payload.GetAllByUserIdConvResponse}
+// @Router /api/v1/conversations [get]
+func (h ConversationHandler) GetAllByUserId(ctx echo.Context) error {
+	var body payload.GetAllByUserIdConvRequest
+
+	if err := ctx.Bind(&body); err != nil {
+		errCustom := http_error.BadRequest(err)
+		return ctx.JSON(errCustom.HTTPCode, errCustom.HttpResponseError())
+	}
+
+	// Validate incoming data
+	if err := ctx.Validate(&body); err != nil {
+		errCustom := http_error.BadRequest(err)
+		return ctx.JSON(http.StatusBadRequest, errCustom)
+	}
+
+	// Pass body to usecase
+	user := ctx.Get("user").(*model.User)
+	body.UserID = user.ID
+	data, err := h.usecases.Conversation.GetAllByUserId(ctx.Request().Context(), &body)
 	if err != nil {
 		if err.Error() == "not found" {
 			return ctx.JSON(http.StatusNotFound, http_error.RecordNotFound("conversation"))

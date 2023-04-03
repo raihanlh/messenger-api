@@ -61,7 +61,7 @@ func (u ConversationUsecase) GetById(ctx context.Context, req *payload.GetByIdCo
 	if conv.SenderID == req.UserID {
 		userWith, err := u.repositories.User.GetById(ctx, conv.ReceiverID)
 		if err != nil {
-			log.Error("Failed to get sender: ", zap.Error(err))
+			log.Error("Failed to get receiver: ", zap.Error(err))
 			return nil, err
 		}
 		return &payload.GetByIdConversationResponse{
@@ -89,4 +89,46 @@ func (u ConversationUsecase) GetById(ctx context.Context, req *payload.GetByIdCo
 	}
 
 	return nil, errors.New("unauthorized")
+}
+
+func (u ConversationUsecase) GetAllByUserId(ctx context.Context, req *payload.GetAllByUserIdConvRequest) (*payload.GetAllByUserIdConvResponse, error) {
+	log := logger.GetLogger(ctx)
+	results := make([]*payload.GetAllByUserIdConv, 0)
+
+	convs, err := u.repositories.Conversation.GetAllByUserId(ctx, req.UserID)
+	if err != nil {
+		log.Error("Failed to get conversations: ", zap.Error(err))
+		return nil, err
+	}
+
+	for _, conv := range convs {
+		var userWith *model.User
+		unreadCount, err := u.repositories.Message.GetUnreadCount(ctx, req.UserID, conv.ID)
+		if conv.SenderID == req.UserID {
+			userWith, err = u.repositories.User.GetById(ctx, conv.ReceiverID)
+			if err != nil {
+				log.Error("Failed to get receiver: ", zap.Error(err))
+				return nil, err
+			}
+		} else if conv.ReceiverID == req.UserID {
+			userWith, err = u.repositories.User.GetById(ctx, conv.SenderID)
+			if err != nil {
+				log.Error("Failed to get sender: ", zap.Error(err))
+				return nil, err
+			}
+		}
+		res := &payload.GetAllByUserIdConv{
+			GetByIdConversationResponse: payload.GetByIdConversationResponse{
+				ConversationID: conv.ID,
+				WithUser:       userWith,
+			},
+			LastMessage: conv.LastMessage,
+			UnreadCount: unreadCount,
+		}
+		res.LastMessage.MessageText = ""
+		res.LastMessage.ConversationID = ""
+		results = append(results, res)
+	}
+
+	return (*payload.GetAllByUserIdConvResponse)(&results), nil
 }

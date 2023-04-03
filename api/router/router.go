@@ -31,4 +31,5 @@ func MapRoutes(e *echo.Echo, h *dependency.Handlers, mw middleware.Middlewares) 
 	conversations := v1.Group("/conversations")
 	conversations.GET("/:convo_id/messages", h.Message.GetByConversationId, mw.Authenticate)
 	conversations.GET("/:convo_id", h.Conversation.GetById, mw.Authenticate)
+	conversations.GET("", h.Conversation.GetAllByUserId, mw.Authenticate)
 }

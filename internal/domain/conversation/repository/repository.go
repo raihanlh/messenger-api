@@ -36,8 +36,15 @@ func (r ConversationRepository) GetById(ctx context.Context, id string) (*model.
 }
 
 func (r ConversationRepository) GetAllByUserId(ctx context.Context, userId string) ([]*model.Conversation, error) {
+	var convs []*model.Conversation
 
-	return nil, nil
+	result := r.DB.WithContext(ctx).Preload("Sender").Preload("Receiver").Preload("LastMessage", func(db *gorm.DB) *gorm.DB {
+		return db.Preload("Sender", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id", "name")
+		}).Select("id", "message_text", "sent_at", "sender_id", "conversation_id").Order("sent_at DESC").Limit(1)
+	}).Where("sender_id = ?", userId).Or("receiver_id = ?", userId).Find(&convs)
+
+	return convs, result.Error
 }
 
 func (r ConversationRepository) GetBySenderReceiverIds(ctx context.Context, senderId string, receiverId string) (*model.Conversation, error) {
