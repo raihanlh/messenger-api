@@ -85,6 +85,13 @@ definitions:
       totalPages:
         type: integer
     type: object
+  payload.GetByIdConversationResponse:
+    properties:
+      id:
+        type: string
+      with_user:
+        $ref: '#/definitions/model.User'
+    type: object
   payload.GetByIdResponse:
     properties:
       message:
@@ -154,6 +161,34 @@ info:
   title: Messenger API
   version: "1.0"
 paths:
+  /api/v1/conversations/{convo_id}:
+    get:
+      consumes:
+      - application/json
+      description: get conversation by id
+      parameters:
+      - description: Conversation ID
+        in: path
+        name: convo_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  $ref: '#/definitions/payload.GetByIdConversationResponse'
+                status:
+                  type: string
+              type: object
+      summary: Get Conversation By Id
+      tags:
+      - Conversation
   /api/v1/conversations/{convo_id}/messages:
     get:
       consumes:

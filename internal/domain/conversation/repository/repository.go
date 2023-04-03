@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"gitlab.com/raihanlh/messenger-api/internal/constant"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/conversation"
@@ -27,7 +28,10 @@ func (r ConversationRepository) Create(ctx context.Context, conv *model.Conversa
 
 func (r ConversationRepository) GetById(ctx context.Context, id string) (*model.Conversation, error) {
 	var conv *model.Conversation
-	result := r.DB.WithContext(ctx).Table(constant.ConversationTable).Where("id = ?", id).First(&conv)
+	result := r.DB.WithContext(ctx).Table(constant.ConversationTable).Where("id = ?", id).Limit(1).Find(&conv)
+	if result.RowsAffected == 0 {
+		return nil, errors.New("not found")
+	}
 	return conv, result.Error
 }
 

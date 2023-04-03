@@ -98,8 +98,6 @@ func (h MessageHandler) GetByConversationId(ctx echo.Context) error {
 		return ctx.JSON(httpErr.HTTPCode, httpErr.HttpResponseError())
 	}
 	var msgs []*model.Message = *data
-	// log.Println("OIIII")
-	// log.Printf("%+v", msgs[0].Sender)
 
 	res := new(apiPayload.BaseResponse)
 	res.AddHTTPCode(http.StatusOK).AddData(msgs)

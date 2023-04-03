@@ -3,6 +3,7 @@ package conversation
 import (
 	"context"
 
+	"github.com/labstack/echo/v4"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/conversation/payload"
 	"gitlab.com/raihanlh/messenger-api/internal/model"
 )
@@ -16,8 +17,10 @@ type Repository interface {
 
 type Usecase interface {
 	Create(ctx context.Context, req *payload.CreateConversationRequest) (*payload.CreateConversationResponse, error)
+	GetById(ctx context.Context, req *payload.GetByIdConversationRequest) (*payload.GetByIdConversationResponse, error)
 }
 
 type Handler interface {
 	// Create(ctx echo.Context) error
+	GetById(ctx echo.Context) error
 }
