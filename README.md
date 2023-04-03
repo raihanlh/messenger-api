@@ -1,5 +1,29 @@
 # Messenger API
 
+## Screenshots
+#### Send image success
+![Success send image](./screenshots/screenshot1.png)
+#### Send image failed, invalid message
+![Send image failed, invalid message](./screenshots/screenshot2.png)
+#### Get messages by conversation id success 1
+![Get messages by conversation id success 1](./screenshots/screenshot3.png)
+#### Get messages by conversation id success 2
+![Get messages by conversation id success 2](./screenshots/screenshot4.png)
+#### Get messages by conversation id failed (forbidden)
+![Get messages by conversation id failed (forbidden)](./screenshots/screenshot5.png)
+#### Get messages by conversation id failed (not found)
+![Get messages by conversation id failed (not found)](./screenshots/screenshot6.png)
+#### Get conversations by user success (empty)
+![Get conversations by user success (empty)](./screenshots/screenshot7.png)
+#### Get conversations by user success (filled)
+![Get conversations by user success (filled)](./screenshots/screenshot8.png)
+#### Get conversation by ID success
+![Get conversation by ID success](./screenshots/screenshot11.png)
+#### Get conversation by ID failed (forbidden)
+![Get conversation by ID failed (forbidden)](./screenshots/screenshot9.png)
+#### Get conversation by ID failed (not found)
+![Get conversation by ID failed (not found)](./screenshots/screenshot10.png)
+
 ### How to init go.mod?
 
 This project is initiated by using command:
