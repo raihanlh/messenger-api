@@ -24,10 +24,10 @@ func (r MessageRepository) Create(ctx context.Context, message *model.Message) (
 	return message, result.Error
 }
 
-func (r MessageRepository) GetAllBySenderReceiverIds(ctx context.Context, senderId string, receiverId string) ([]*model.Message, error) {
-	return nil, nil
-}
-
-func (r MessageRepository) GetAllByConversationId(ctx context.Context, email string) ([]*model.Message, error) {
-	return nil, nil
+func (r MessageRepository) GetAllByConversationId(ctx context.Context, conversationId string) ([]*model.Message, error) {
+	var messages []*model.Message
+	result := r.DB.WithContext(ctx).Preload("Sender", func(db *gorm.DB) *gorm.DB {
+		return db.Select("id", "name")
+	}).Where("conversation_id = ?", conversationId).Select("messages.id", "messages.message_text", "messages.sent_at", "messages.sender_id").Find(&messages)
+	return messages, result.Error
 }

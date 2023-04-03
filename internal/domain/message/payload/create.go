@@ -16,6 +16,6 @@ type CreateMessageResponse struct {
 	ID                   string                  `json:"id"` // Message ID
 	MessageText          string                  `json:"message"`
 	Sender               *model.User             `json:"sender"`
-	SendAt               time.Time               `json:"send_at"`
+	SentAt               time.Time               `json:"sent_at"`
 	ConversationResponse GetConversationResponse `json:"conversation"`
 }

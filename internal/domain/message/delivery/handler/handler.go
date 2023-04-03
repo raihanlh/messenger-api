@@ -62,3 +62,46 @@ func (h MessageHandler) Create(ctx echo.Context) error {
 	res.AddHTTPCode(http.StatusCreated).AddData(data)
 	return ctx.JSON(res.HTTPCode, res)
 }
+
+// GetMessageByConversationId godoc
+// @Summary Get Message By Conversation Id
+// @Description get message by conversation id
+// @Tags Message
+// @Accept application/json
+// @Param convo_id path string true "Conversation ID"
+// @Produce json
+// @Success 200 {object} object{status=string,data=payload.GetMessagesByConvIdResponse}
+// @Router /api/v1/conversations/{convo_id}/messages [get]
+func (h MessageHandler) GetByConversationId(ctx echo.Context) error {
+	var body payload.GetMessagesByConvIdRequest
+
+	if err := ctx.Bind(&body); err != nil {
+		errCustom := http_error.BadRequest(err)
+		return ctx.JSON(errCustom.HTTPCode, errCustom.HttpResponseError())
+	}
+
+	// Validate incoming data
+	if err := ctx.Validate(&body); err != nil {
+		errCustom := http_error.BadRequest(err)
+		return ctx.JSON(http.StatusBadRequest, errCustom)
+	}
+
+	// Pass body to usecase
+	user := ctx.Get("user").(*model.User)
+	body.UserID = user.ID
+	data, err := h.usecases.Message.GetAllByConversationId(ctx.Request().Context(), &body)
+	if err != nil {
+		httpErr, ok := err.(*http_error.Error)
+		if !ok {
+			return ctx.JSON(http.StatusInternalServerError, http_error.InternalServerError(fmt.Sprintf("Failed to get user by id: %s", httpErr.Error())))
+		}
+		return ctx.JSON(httpErr.HTTPCode, httpErr.HttpResponseError())
+	}
+	var msgs []*model.Message = *data
+	// log.Println("OIIII")
+	// log.Printf("%+v", msgs[0].Sender)
+
+	res := new(apiPayload.BaseResponse)
+	res.AddHTTPCode(http.StatusOK).AddData(msgs)
+	return ctx.JSON(res.HTTPCode, res)
+}

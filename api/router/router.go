@@ -1,8 +1,6 @@
 package router
 
 import (
-	"log"
-
 	swagger "github.com/swaggo/echo-swagger"
 
 	"github.com/labstack/echo/v4"
@@ -28,6 +26,8 @@ func MapRoutes(e *echo.Echo, h *dependency.Handlers, mw middleware.Middlewares) 
 	user.GET("", h.User.GetByToken, mw.Authenticate)
 
 	messages := v1.Group("/messages")
-	log.Println(h.Message.Create)
 	messages.POST("", h.Message.Create, mw.Authenticate)
+
+	conversations := v1.Group("/conversations")
+	conversations.GET("/:convo_id/messages", h.Message.GetByConversationId, mw.Authenticate)
 }

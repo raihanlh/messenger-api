@@ -9,6 +9,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, conv *model.Conversation) (*model.Conversation, error)
+	GetById(ctx context.Context, id string) (*model.Conversation, error)
 	GetAllByUserId(ctx context.Context, userId string) ([]*model.Conversation, error)
 	GetBySenderReceiverIds(ctx context.Context, senderId string, receiverId string) (*model.Conversation, error)
 }

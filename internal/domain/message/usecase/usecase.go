@@ -2,13 +2,14 @@ package usecase
 
 import (
 	"context"
+	"errors"
 	"time"
 
-	"github.com/labstack/gommon/log"
 	"gitlab.com/raihanlh/messenger-api/internal/app/dependency"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/message"
 	"gitlab.com/raihanlh/messenger-api/internal/domain/message/payload"
 	"gitlab.com/raihanlh/messenger-api/internal/model"
+	"gitlab.com/raihanlh/messenger-api/pkg/logger"
 	"go.uber.org/zap"
 )
 
@@ -23,6 +24,7 @@ func New(r *dependency.Repositories) message.Usecase {
 }
 
 func (u MessageUsecase) Create(ctx context.Context, req *payload.CreateMessageRequest) (*payload.CreateMessageResponse, error) {
+	log := logger.GetLogger(ctx)
 	convo, err := u.repositories.Conversation.GetBySenderReceiverIds(ctx, req.SenderID, req.ReceiverID)
 	if err != nil {
 		log.Error("Failed to get conversation: ", zap.Error(err))
@@ -51,7 +53,7 @@ func (u MessageUsecase) Create(ctx context.Context, req *payload.CreateMessageRe
 	}
 
 	msg, err := u.repositories.Message.Create(ctx, &model.Message{
-		SendAt:         time.Now(),
+		SentAt:         time.Now(),
 		ConversationID: convo.ID,
 		SenderID:       req.SenderID,
 		MessageText:    req.Message,
@@ -67,7 +69,7 @@ func (u MessageUsecase) Create(ctx context.Context, req *payload.CreateMessageRe
 			Model: model.Model{ID: sender.ID},
 			Name:  sender.Name,
 		},
-		SendAt: msg.SendAt,
+		SentAt: msg.SentAt,
 		ConversationResponse: payload.GetConversationResponse{
 			ConversationID: convo.ID,
 			WithUser: &model.User{
@@ -77,4 +79,26 @@ func (u MessageUsecase) Create(ctx context.Context, req *payload.CreateMessageRe
 			},
 		},
 	}, nil
+}
+
+func (u MessageUsecase) GetAllByConversationId(ctx context.Context, req *payload.GetMessagesByConvIdRequest) (*payload.GetMessagesByConvIdResponse, error) {
+	log := logger.GetLogger(ctx)
+	convo, err := u.repositories.Conversation.GetById(ctx, req.ConversationID)
+	if err != nil {
+		log.Error("Failed to get conversation: ", zap.Error(err))
+		return nil, err
+	}
+	if convo.SenderID != req.UserID && convo.ReceiverID != req.UserID {
+		log.Error("Unauthorized: ", zap.Error(err))
+		return nil, errors.New("Unauthorized")
+	}
+
+	msgs, err := u.repositories.Message.GetAllByConversationId(ctx, req.ConversationID)
+	if err != nil {
+		log.Error("Failed get messages by conversation id: ", zap.Error(err))
+		return nil, err
+	}
+
+	var res payload.GetMessagesByConvIdResponse = msgs
+	return &res, nil
 }

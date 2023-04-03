@@ -1,4 +1,15 @@
 definitions:
+  model.Message:
+    properties:
+      conversationId:
+        type: string
+      message:
+        type: string
+      sender:
+        $ref: '#/definitions/model.User'
+      sent_at:
+        type: string
+    type: object
   model.User:
     properties:
       email:
@@ -24,10 +35,10 @@ definitions:
         type: string
       message:
         type: string
-      send_at:
-        type: string
       sender:
         $ref: '#/definitions/model.User'
+      sent_at:
+        type: string
     type: object
   payload.CreateRequest:
     properties:
@@ -143,6 +154,36 @@ info:
   title: Messenger API
   version: "1.0"
 paths:
+  /api/v1/conversations/{convo_id}/messages:
+    get:
+      consumes:
+      - application/json
+      description: get message by conversation id
+      parameters:
+      - description: Conversation ID
+        in: path
+        name: convo_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - type: object
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Message'
+                  type: array
+                status:
+                  type: string
+              type: object
+      summary: Get Message By Conversation Id
+      tags:
+      - Message
   /api/v1/messages:
     post:
       consumes:

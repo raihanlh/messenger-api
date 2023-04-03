@@ -24,6 +24,56 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/v1/conversations/{convo_id}/messages": {
+            "get": {
+                "description": "get message by conversation id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Message"
+                ],
+                "summary": "Get Message By Conversation Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Conversation ID",
+                        "name": "convo_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "type": "object"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Message"
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/messages": {
             "post": {
                 "description": "create message from request body",
@@ -444,6 +494,23 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Message": {
+            "type": "object",
+            "properties": {
+                "conversationId": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "sender": {
+                    "$ref": "#/definitions/model.User"
+                },
+                "sent_at": {
+                    "type": "string"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -482,11 +549,11 @@ const docTemplate = `{
                 "message": {
                     "type": "string"
                 },
-                "send_at": {
-                    "type": "string"
-                },
                 "sender": {
                     "$ref": "#/definitions/model.User"
+                },
+                "sent_at": {
+                    "type": "string"
                 }
             }
         },

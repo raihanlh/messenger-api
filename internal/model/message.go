@@ -8,12 +8,12 @@ import (
 
 type Message struct {
 	Model          `swaggerignore:"true"`
-	SendAt         time.Time     `json:"send_at" gorm:"autoCreateTime"`
-	ConversationID string        `json:"conversationId"`
-	SenderID       string        `json:"senderId"`
-	MessageText    string        `json:"messageText"`
+	SentAt         time.Time     `json:"sent_at" gorm:"autoCreateTime"`
+	ConversationID string        `json:"conversationId,omitempty"`
+	SenderID       string        `json:"-"`
+	MessageText    string        `json:"message"`
 	Conversation   *Conversation `gorm:"foreignKey:ConversationID" json:"-"`
-	Sender         *User         `gorm:"foreignKey:SenderID" json:"-"`
+	Sender         *User         `gorm:"foreignKey:SenderID" json:"sender"`
 }
 
 // Table name for gorm

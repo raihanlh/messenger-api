@@ -25,31 +25,14 @@ func (r ConversationRepository) Create(ctx context.Context, conv *model.Conversa
 	return conv, result.Error
 }
 
-// SELECT product_id, MAX(sale_date) as latest_sale_date, sale_amount
-// FROM sales
-// GROUP BY product_id
+func (r ConversationRepository) GetById(ctx context.Context, id string) (*model.Conversation, error) {
+	var conv *model.Conversation
+	result := r.DB.WithContext(ctx).Table(constant.ConversationTable).Where("id = ?", id).First(&conv)
+	return conv, result.Error
+}
+
 func (r ConversationRepository) GetAllByUserId(ctx context.Context, userId string) ([]*model.Conversation, error) {
-	// convs := make([]*model.Conversation, 0)
-	// var rows []map[string]interface{}
-	// result := r.DB.WithContext(ctx).Select("c.id", "m.message_text as msg_text", "MAX(m.created_at) as latest_message_at").
-	// 	Table(constant.ConversationTable+"AS c").Joins("JOIN user_participants p ON p.conversation_id = c.id").
-	// 	Joins("JOIN messages m ON m.conversation_id = c.id").Where("p.user_id = ?", userId).Distinct().Group("c.id").
-	// 	Order("latest_message_at DESC").Scan(&rows)
 
-	// log.Println(rows)
-	// for _, row := range rows {
-	// 	conv := &model.Conversation{
-	// 		Model: model.Model{
-	// 			ID: row["id"].(string),
-	// 		},
-	// 		LatestMessage: model.Message{
-	// 			MessageText: row["msg_text"].(string),
-	// 		},
-	// 	}
-	// 	convs = append(convs, conv)
-	// }
-
-	// return convs, result.Error
 	return nil, nil
 }
 
